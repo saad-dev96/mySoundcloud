@@ -18,7 +18,7 @@ const Header = () => {
           Profile
         </Link>
         {currentUser ? (
-          <button className='option'  to = '/' onClick = {localStorage.removeItem('token')} >
+          <button className='option'  to = '/' onClick = {() => {return (localStorage.removeItem('token'), window.location.reload())}} >
             SIGN OUT
           </button>
         ) : (

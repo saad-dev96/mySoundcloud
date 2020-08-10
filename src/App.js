@@ -8,7 +8,7 @@ import Header from './components/header/header.component';
 import Profile from './pages/profile/profile.component'
 import './App.css';
 import CurrentUserContext from './contexts/current-user/current-user.context';
-
+import ForgotPassword from './components/forgot-password/forgot-password.component';
 
 import {createStructuredSelector} from 'reselect'
 import axios from 'axios';
@@ -44,6 +44,7 @@ class App extends React.Component {
           <Switch>
           <Route exact path='/home' component={HomePage} />
           <Route exact path='/profile' component={Profile} />
+          <Route exact path='/forgot' component={ForgotPassword} />
             <Route
               exact
               path='/'

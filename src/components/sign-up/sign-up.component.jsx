@@ -33,7 +33,8 @@ class SignUp extends React.Component {
         this.setState({ username: '', fname:'', lname:'', email: '', password: ''});
         localStorage.setItem('fname', this.state.username); 
         localStorage.setItem('lname', this.state.password); 
-        console.log("this is user " + localStorage.getItem('token'));
+        alert ("Signed up successfully");
+        //console.log("this is user " + localStorage.getItem('token'));
       })
       .catch ((res) => {
         console.log(res);

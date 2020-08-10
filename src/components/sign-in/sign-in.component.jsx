@@ -2,6 +2,9 @@ import React, {useContext} from 'react';
 import FormInput from '../form-input/form-input.component';
 import './sign-in.styles.scss';
 import axios from 'axios';
+import { withRouter, Link } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
+
 
 class SignIn extends React.Component {
   constructor(props) {
@@ -14,11 +17,16 @@ class SignIn extends React.Component {
     };
   }
 
-  handleSubmitForget = event => {
-    
-  }
+  handleSubmitForget = () => {
 
-  handleSubmit = event => {
+    {
+      const { history } = this.props;
+      if(history) history.push('/forgot');
+     }
+    }
+
+  handleSubmit = (event)  => {
+
     event.preventDefault();
     const { username, password } = this.state;
     const user = {
@@ -27,13 +35,19 @@ class SignIn extends React.Component {
     };
     console.log(user);
 
-      axios.get('https://soud-cloud-backend.herokuapp.com/user/password_reset/')
+      axios.post('https://soud-cloud-backend.herokuapp.com/api/user/login/' , user)
       .then(res => {
+        localStorage.setItem('user', user.username);
+        console.log(res.data.token);
+        localStorage.setItem('token', res.data.token); 
+        if (res.status === 200)  
+        alert("Successfully signed in")
+        window.location.reload();
       })
       .catch ((res) => {
         console.log(res);
-        if (res.status == undefined) {
-          alert('COULD NOT FORGET PASSWORD')
+        if (res.status === undefined) {
+          alert('could not sign-in due to ' + res.status)
         }
     })
   };
@@ -45,6 +59,7 @@ class SignIn extends React.Component {
   };
  
   render() {
+
     return (
       <div className='sign-in'>
         <h2>I already have an account</h2>
@@ -70,10 +85,8 @@ class SignIn extends React.Component {
           <div className='buttons'>
             <button type='submit'> Sign in </button>
           </div>
+          <Link to='/forgot'> Forgot password? </Link>
         </form>
-        <div className='buttons'>
-            <button type='submit' onClick = {this.handleSubmitForget}> Forget password </button>
-          </div>
       </div>
     );
   }
