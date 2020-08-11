@@ -16,13 +16,12 @@ class HomePage extends Component{
   handleSearch = () => {
     const token = localStorage.getItem('token');
     const key = document.getElementById("search").value;
-    axios.get(`https://soud-cloud-backend.herokuapp.com/api/song/search/?title=${key}`, {
+    axios.get(`https://soud-cloud-backend.herokuapp.com/api/song/search/?q=${key}`, {
       headers: {
         'Authorization': `Token ${token}` 
       }
     })
     .then(res => {
-      
       this.setState({searchedList : res.data});
       if (this.state.searchedList.length!==0)
       {
@@ -58,6 +57,7 @@ class HomePage extends Component{
       })
       .catch(res => 
         {alert("nothing found due to " + res.status)});
+      console.log(localStorage.getItem('token'));
   }
   componentDidMount(){
 
@@ -65,18 +65,19 @@ class HomePage extends Component{
 
   render(){
     const user = localStorage.getItem('user');
+    console.log(localStorage.getItem('token'));
     return(
     <div className='homepage'>
       <div className='option'/>
 
       welcome {user}
-      <div>
+      <div className='all'>
       <button className='button' type="submit" onClick={this.handleAll}>view all songs</button>
       {this.state.listFlag? ( <PlaySong  list={this.state.mylist}/>) : null}
       </div>
       ---------------------------------------------------------------------------------
       ---------------------------------------------------------------------------------
-      <div>
+      <div className='searching'>
       <input type="text" placeholder="Search Songs" id= 'search'></input>
       <button className='button' type="submit" onClick={this.handleSearch}>Search</button>
       {this.state.searchFlag? (<PlaySong  list={this.state.searchedList}/>) : null}

@@ -19,7 +19,9 @@ class PlaySong extends React.Component {
     selectedTrack: null,
     player: "stopped",
     currentTime: null,
-    duration: null
+    duration: null,
+    comments: [],
+    commentFlag:false
   };
   }
   componentDidMount() {
@@ -29,6 +31,25 @@ class PlaySong extends React.Component {
         duration: e.target.duration
       });
     });
+  }
+
+  viewComments = (id) =>{
+  const token = localStorage.getItem('token');
+  axios.get(`https://soud-cloud-backend.herokuapp.com/api/song/details/${id}`, {
+    headers: {
+      'Authorization': `Token ${token}` 
+    }
+  })
+  .then(res => {   
+    this.setState({comments:res.data});
+    this.setState({commentFlag:true});
+    this.state.comments.comments.map(item=>console.log(item.body));
+  })
+  .catch(res => 
+    {
+      alert("failed to view comments because  " + res.status );
+    }
+  );
   }
 
   componentWillUnmount() {
@@ -68,12 +89,17 @@ class PlaySong extends React.Component {
     
     const list = this.props.list.map(item => {
       return (
-        <li
-          key={item.id}
-          onClick={() => this.setState({ selectedTrack: item.title })}
-        >
-          {item.title}
-        </li>
+        <div>
+          <button key = {item.id} onClick={()=>this.viewComments(item.id)}>
+          {item.id} view comments
+          </button>
+          <li
+            key={item.id}
+            onClick={() => this.setState({ selectedTrack: item.title })}
+          >
+            {item.title}
+          </li>
+        </div>
       );
     });
     
@@ -83,7 +109,16 @@ class PlaySong extends React.Component {
     return (
       <>
         <h1>Songs are</h1>
-        <ul>{list}</ul>
+        <div>
+          <ul>{list}</ul>
+          <p>
+          {this.state.commentFlag ? 
+          (<div>{this.state.comments.comments.map(
+            item => <p>{item.user} commented : {item.body}</p>)}</div>)
+            :null} 
+          </p>
+        </div>
+         
         <div>
           {this.state.player === "paused" && (
             <button onClick={() => this.setState({ player: "playing" })}>

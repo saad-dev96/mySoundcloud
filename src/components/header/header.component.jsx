@@ -1,13 +1,27 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import CurrentUserContext from '../../contexts/current-user/current-user.context';
+import axios from 'axios';
 
 import './header.styles.scss';
 
 const handleClick = (location) => {
+  const token = localStorage.getItem('token');
+  const key = document.getElementById("search").value;
+  axios.get("https://soud-cloud-backend.herokuapp.com/api/user/logout/", {
+    headers: {
+      'Authorization': `Token ${token}` 
+    }
+  })
+  .then(res => {
+    alert("Logged out");
+  })
+  .catch(res => 
+    {alert(res.status)}
+  );
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-   window.location.href = '/';
+  window.location.href = '/';
 }
 
 const Header = () => {
