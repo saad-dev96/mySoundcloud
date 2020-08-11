@@ -1,39 +1,93 @@
-import React, {useState} from 'react';
+import React, {useState, Component} from 'react';
 import PlaySong from '../../components/playsong/playsong.component'
 import './homepage.styles.scss';
 import axios from 'axios'
-let Mylist = [];
-
-const fun = (Mylist) => {
-  const [list, setlist] = useState(Mylist);
-  console.log("function  " + Mylist);
-} 
-
-const HomePage = () => {
+import { render } from '@testing-library/react';
+import e from 'cors';
+class HomePage extends Component{
   
-  const user = localStorage.getItem('user');
-  const token = localStorage.getItem('token');
-  axios.get('https://soud-cloud-backend.herokuapp.com/api/song/list/', {
-    headers: {
-      'Authorization': `Token ${token}` 
-    }
-  })
-  .then(res => {
-    Mylist = res.data;
-    fun(Mylist);
-    localStorage.setItem('list', Mylist);
-  });
-  console.log(Mylist);
-  const [list, setlist] = useState(Mylist);
-  console.log(list);
+  state = {
+    mylist : [],
+    searchedList:[],
+    searchFlag:false,
+    listFlag:false
+  }
 
-  return(
-  <div className='homepage'>
-   {user}  welcome
-   <PlaySong list={list} />
-  </div>
-  )
+  handleSearch = () => {
+    const token = localStorage.getItem('token');
+    const key = document.getElementById("search").value;
+    axios.get(`https://soud-cloud-backend.herokuapp.com/api/song/search/?title=${key}`, {
+      headers: {
+        'Authorization': `Token ${token}` 
+      }
+    })
+    .then(res => {
+      
+      this.setState({searchedList : res.data});
+      if (this.state.searchedList.length!==0)
+      {
+        this.setState({searchFlag : true});
+      }
+      else {
+        alert("nothing exists with your search ");
+        this.setState({searchFlag : false});
+      }
+    })
+    .catch(res => 
+    {alert("nothing exists with your search ")});
+  
 }
+  handleAll = () => {
+   
+      const token = localStorage.getItem('token');
+      axios.get('https://soud-cloud-backend.herokuapp.com/api/song/list/', {
+        headers: {
+          'Authorization': `Token ${token}` 
+        }
+      })
+      .then(res => {
+        this.setState({mylist : res.data})
+        if (this.state.mylist.length!==0)
+      {
+        this.setState({listFlag : true});
+      }
+      else {
+        alert("nothing exists in this list ");
+        this.setState({listFlag : false});
+      } 
+      })
+      .catch(res => 
+        {alert("nothing found due to " + res.status)});
+  }
+  componentDidMount(){
+
+  }
+
+  render(){
+    const user = localStorage.getItem('user');
+    return(
+    <div className='homepage'>
+      <div className='option'/>
+
+      welcome {user}
+      <div>
+      <button className='button' type="submit" onClick={this.handleAll}>view all songs</button>
+      {this.state.listFlag? ( <PlaySong  list={this.state.mylist}/>) : null}
+      </div>
+      ---------------------------------------------------------------------------------
+      ---------------------------------------------------------------------------------
+      <div>
+      <input type="text" placeholder="Search Songs" id= 'search'></input>
+      <button className='button' type="submit" onClick={this.handleSearch}>Search</button>
+      {this.state.searchFlag? (<PlaySong  list={this.state.searchedList}/>) : null}
+      </div>
+    
+  
+    </div>
+    );
+}
+}
+
 
 
 export default HomePage;

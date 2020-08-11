@@ -1,6 +1,6 @@
 import React, { Component, useContext }from "react";
 import axios from 'axios'
-import {Mylist} from '../../pages/homepage/homepage.component'
+import ReactDOM from "react-dom";
 
 function getTime(time) {
   if (!isNaN(time)) {
@@ -38,16 +38,10 @@ class PlaySong extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (this.state.selectedTrack !== prevState.selectedTrack) {
       let track;
-      switch (this.state.selectedTrack) {
-        case "Campfire Story":
-          track = "https://sound-cloud-app.s3.amazonaws.com/songs/shape-of-you-official-video_yZD3798.mp3";
-          break;
-        case "Booting Up":
-          track = "https://sound-cloud-app.s3.amazonaws.com/songs/shape-of-you-official-video_yZD3798.mp3";
-          break;
-        default:
-          break;
-      }
+      const currentSong = this.props.list.filter(song => song.title === this.state.selectedTrack);
+      if (this.state.selectedTrack)
+      track=currentSong[0].file;
+   
       if (track) {
         this.player.src = track;
         this.player.play();
@@ -59,7 +53,7 @@ class PlaySong extends React.Component {
         this.player.pause();
       } else if (this.state.player === "stopped") {
         this.player.pause();
-        this.player.currentTime = 0;
+        this.player.currentTime = 0; 
         this.setState({ selectedTrack: null });
       } else if (
         this.state.player === "playing" &&
@@ -71,10 +65,8 @@ class PlaySong extends React.Component {
   }
 
   render() {
-    const list = [
-      { id: 1, title: "Campfire Story" },
-      { id: 2, title: "Booting Up" }
-    ].map(item => {
+    
+    const list = this.props.list.map(item => {
       return (
         <li
           key={item.id}
@@ -84,13 +76,13 @@ class PlaySong extends React.Component {
         </li>
       );
     });
-    console.log(this.props.list);
+    
     const currentTime = getTime(this.state.currentTime);
     const duration = getTime(this.state.duration);
-
+    
     return (
       <>
-        <h1>Song Player</h1>
+        <h1>Songs are</h1>
         <ul>{list}</ul>
         <div>
           {this.state.player === "paused" && (
@@ -107,9 +99,13 @@ class PlaySong extends React.Component {
             <button onClick={() => this.setState({ player: "stopped" })}>
               Stop
             </button>
-          ) : (
-            ""
-          )}
+          ) : ""
+          }
+          {this.state.selectedTrack && this.state.player === "stopped" ? (
+          <button onClick={() => this.setState({ player: "playing" })}>
+            play
+          </button>
+            ) : "" }
         </div>
         {this.state.player === "playing" || this.state.player === "paused" ? (
           <div>

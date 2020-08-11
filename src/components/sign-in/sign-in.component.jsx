@@ -32,13 +32,11 @@ class SignIn extends React.Component {
     const user = {
       username: this.state.username,
       password: this.state.password
-    };
-    console.log(user);
+    }
 
       axios.post('https://soud-cloud-backend.herokuapp.com/api/user/login/' , user)
       .then(res => {
         localStorage.setItem('user', user.username);
-        console.log(res.data.token);
         localStorage.setItem('token', res.data.token); 
         if (res.status === 200)  
         alert("Successfully signed in")

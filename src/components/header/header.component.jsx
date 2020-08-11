@@ -1,8 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import CurrentUserContext from '../../contexts/current-user/current-user.context';
 
 import './header.styles.scss';
+
+const handleClick = (location) => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+   window.location.href = '/';
+}
 
 const Header = () => {
   
@@ -18,7 +24,7 @@ const Header = () => {
           Profile
         </Link>
         {currentUser ? (
-          <button className='option'  to = '/' onClick = {() => {return (localStorage.removeItem('token'), window.location.reload())}} >
+          <button className='option'  to = '/' onClick = {handleClick} >
             SIGN OUT
           </button>
         ) : (
@@ -26,9 +32,6 @@ const Header = () => {
             SIGN IN
           </Link>
         )}
-        <div className='option'>
-        </div><input type="text" placeholder="Search Songs"></input>
-        <button type="submit">Submit</button>
         </div>
     </div>
   )
