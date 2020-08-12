@@ -1,12 +1,17 @@
 import React, { Component, useContext } from "react";
 import axios from 'axios'
 import ReactDOM from "react-dom";
-import {URL} from '../../env'
-import {viewComments} from '../../env'
-import {getItem} from '../../utils'
-import {getTime} from '../../utils'
+import { URL } from '../../env'
+import { addComment } from '../../env'
+import { viewComments } from '../../env'
+import { getItem } from '../../utils'
+import { getTime } from '../../utils'
+import { updateComment } from '../../env'
+import { deleteComment } from '../../env'
 
 var key = 0;
+var editId = 0;
+
 
 class PlaySong extends React.Component {
   constructor(props) {
@@ -17,8 +22,17 @@ class PlaySong extends React.Component {
       player: "stopped",
       currentTime: null,
       duration: null,
-      comments: [],
-      commentFlag: false
+      comments: {
+        comments: []
+      },
+      commentFlag: false,
+      editFlag: false,
+      comment: {
+        song_id: null,
+        body: null
+      },
+      editComment: '',
+      currentSong : 0
     };
   }
   componentDidMount() {
@@ -29,9 +43,10 @@ class PlaySong extends React.Component {
       });
     });
   }
-
-  viewComments = (id) => {
+  refreshComments = () =>{
+    console.log(this.state.currentSong);
     const token = getItem('token');
+    const id=this.state.currentSong;
     axios.get(`${URL}${viewComments}${id}`, {
       headers: {
         'Authorization': `Token ${token}`
@@ -46,6 +61,103 @@ class PlaySong extends React.Component {
       }
       );
   }
+  viewComments = (id) => {
+    const token = getItem('token');
+    this.setState({currentSong : id});
+    axios.get(`${URL}${viewComments}${id}`, {
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    })
+      .then(res => {
+        this.setState({ comments: res.data });
+        this.setState({ commentFlag: true });
+      })
+      .catch(res => {
+        alert("failed to view comments because  " + res.status);
+      }
+      );
+  }
+
+  deleteComment = (id) => {
+    const token = getItem('token');
+    axios.delete(`${URL}${deleteComment}${id}`, {
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    })
+      .then(res => {
+        alert("comment deleted");
+        this.setState({ commentFlag: true } , ()=>{this.refreshComments()});
+      })
+      .catch(res => {
+        alert("failed to delete comment because  " + res.status);
+      }
+      );
+
+
+  }
+  addCommentHelper = (id) => {
+
+    this.state.currentSong = id;
+    this.setState({ commentAddFlag: true, editFlag: false, commentFlag: false })
+  }
+
+  addNewComment = () => {
+    const token = getItem('token');
+    const text = document.getElementById("comment").value;
+
+    const { comment } = this.state;
+    comment.song_id = this.state.currentSong
+    comment.body = text;
+    comment.user = getItem('user');
+    const comments = this.state.comments;
+    comments.comments.push(comment);
+    this.setState({ comment, comments });
+    axios.post(`${URL}${addComment}`, this.state.comment, {
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    })
+      .then(res => {
+        this.setState({ commentAddFlag: false, commentFlag: true });
+        alert("Comment added");
+      })
+      .catch(res => {
+        alert("failed to add comment because  " + res.status);
+      }
+      );
+  }
+
+  updateCommentHelper = (id, body) => {
+    editId = id;
+    this.setState({ editComment: body })
+    this.setState({ editFlag: true, commentAddFlag: false, commentFlag: false });
+  }
+  updateComment = (id) => {
+    const token = getItem('token');
+    const text = document.getElementById("update").value;
+    const body = {
+      body: text
+    }
+    axios.patch(`${URL}${updateComment}${editId}`, body, {
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    })
+      .then(res => {
+        this.setState({comment : res.data});
+        this.refreshComments(this.state.currentSong);
+        this.setState({ editFlag: false, commentFlag: true });
+        alert("Comment edited");
+      })
+      .catch(res => {
+        alert("failed to add comment because  " + res.status);
+      }
+      );
+
+  }
+
 
   componentWillUnmount() {
     this.player.removeEventListener("timeupdate", () => { });
@@ -82,18 +194,23 @@ class PlaySong extends React.Component {
 
   render() {
 
-    const list = this.props.list.map(item => {
+    const list = this.props.list.map((item, index) => {
       return (
-        <div>
+        <div key={index}>
           <li
-            key={item.id}
             onClick={() => this.setState({ selectedTrack: item.title })}
           >
             {item.title}
           </li>
+
           <button key={key++} onClick={() => this.viewComments(item.id)}>
             view comments
           </button>
+
+          <button key={key++} onClick={() => this.addCommentHelper(item.id)}>
+            add a comment
+          </button>
+
         </div>
       );
     });
@@ -106,12 +223,36 @@ class PlaySong extends React.Component {
         <h1>Songs are</h1>
         <div>
           <ul>{list}</ul>
-          <p>
+          {this.state.commentAddFlag ?
+            (<div className='comment'>
+              <textarea id="comment" rows='4' cols='50' placeholder='add a comment' ></textarea>
+              <button onClick={this.addNewComment}>submit</button>
+            </div>)
+            : null}
+          <div>
             {this.state.commentFlag ?
-              (<div>{this.state.comments.comments.map(
-                item => <p>{item.user} commented : {item.body}</p>)}</div>)
+              (<div>{this.state.comments.comments.map((item, index) =>
+                <div key={index}>
+                  <p>{item.user} commented : {item.body}</p>
+                  {
+                    item.user === getItem('user') ?
+                    (<div key={index}><button onClick={() => this.updateCommentHelper(item.id, item.body)}>edit comment</button>
+                    <button className ='delete' onClick={() => this.deleteComment(item.id)}>delete comment</button></div>
+                    )
+                    : null
+                  }
+                </div>
+              )}</div>)
               : null}
-          </p>
+          </div>
+          {this.state.editFlag ?
+            (<div className='update'>
+              <textarea id="update" rows='4' cols='50' defaultValue={this.state.editComment}></textarea>
+              <button onClick={this.updateComment}>submit</button>
+            </div>)
+            : null
+          }
+
         </div>
 
         <div>

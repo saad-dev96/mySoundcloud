@@ -4,9 +4,13 @@ import './homepage.styles.scss';
 import axios from 'axios'
 import { render } from '@testing-library/react';
 import e from 'cors';
-import {URL} from '../../env'
-import {searchSongs} from '../../env'
-import {listSongs} from '../../env'
+import { URL } from '../../env'
+import { searchSongs } from '../../env'
+import { listSongs } from '../../env'
+import { setItem } from '../../utils'
+import { removeItem } from '../../utils'
+import { getItem } from '../../utils'
+
 class HomePage extends Component {
 
   state = {
@@ -17,7 +21,7 @@ class HomePage extends Component {
   }
 
   handleSearchClick = () => {
-    const token = localStorage.getItem('token');
+    const token = getItem('token');
     const key = document.getElementById("search").value;
     axios.get(`${URL}${searchSongs}${key}`, {
       headers: {
@@ -39,7 +43,7 @@ class HomePage extends Component {
   }
   handleListClick = () => {
 
-    const token = localStorage.getItem('token');
+    const token = getItem('token');
     axios.get(`${URL}${listSongs}`, {
       headers: {
         'Authorization': `Token ${token}`
@@ -56,33 +60,31 @@ class HomePage extends Component {
         }
       })
       .catch(res => { alert("nothing found due to " + res.status) });
-    console.log(localStorage.getItem('token'));
+    console.log(getItem('token'));
   }
   componentDidMount() {
 
   }
 
   render() {
-    const user = localStorage.getItem('user');
-    console.log(localStorage.getItem('token'));
+    const user = getItem('user');
+    console.log(getItem('token'));
     return (
       <div className='homepage'>
-        <div className='option' />
+          <div className='option' />
 
       welcome {user}
-        <div className='all'>
-          <button className='button' type="submit" onClick={this.handleListClick}>view all songs</button>
-          {this.state.listFlag ? (<PlaySong list={this.state.mylist} />) : null}
-        </div>
+          <div className='all'>
+            <button className='button' type="submit" onClick={this.handleListClick}>view all songs</button>
+            {this.state.listFlag ? (<PlaySong list={this.state.mylist} />) : null}
+          </div>
       ---------------------------------------------------------------------------------
       ---------------------------------------------------------------------------------
         <div className='searching'>
-          <input type="text" placeholder="Search Songs" id='search'></input>
-          <button className='button' type="submit" onClick={this.handleSearchClick}>Search</button>
-          {this.state.searchFlag ? (<PlaySong list={this.state.searchedList} />) : null}
-        </div>
-
-
+            <input type="text" placeholder="Search Songs" id='search'></input>
+            <button className='button' type="submit" onClick={this.handleSearchClick}>Search</button>
+            {this.state.searchFlag ? (<PlaySong list={this.state.searchedList} />) : null}
+          </div>
       </div>
     );
   }
