@@ -1,28 +1,25 @@
-import React, { Component, useContext }from "react";
+import React, { Component, useContext } from "react";
 import axios from 'axios'
 import ReactDOM from "react-dom";
+import {URL} from '../../env'
+import {viewComments} from '../../env'
+import {getItem} from '../../utils'
+import {getTime} from '../../utils'
 
-function getTime(time) {
-  if (!isNaN(time)) {
-    return (
-      Math.floor(time / 60) + ":" + ("0" + Math.floor(time % 60)).slice(-2)
-    );
-  }
-}
+var key = 0;
 
 class PlaySong extends React.Component {
-  constructor(props){
+  constructor(props) {
+    super(props);
 
-  super(props);
-  
-  this.state = {
-    selectedTrack: null,
-    player: "stopped",
-    currentTime: null,
-    duration: null,
-    comments: [],
-    commentFlag:false
-  };
+    this.state = {
+      selectedTrack: null,
+      player: "stopped",
+      currentTime: null,
+      duration: null,
+      comments: [],
+      commentFlag: false
+    };
   }
   componentDidMount() {
     this.player.addEventListener("timeupdate", e => {
@@ -33,27 +30,25 @@ class PlaySong extends React.Component {
     });
   }
 
-  viewComments = (id) =>{
-  const token = localStorage.getItem('token');
-  axios.get(`https://soud-cloud-backend.herokuapp.com/api/song/details/${id}`, {
-    headers: {
-      'Authorization': `Token ${token}` 
-    }
-  })
-  .then(res => {   
-    this.setState({comments:res.data});
-    this.setState({commentFlag:true});
-    this.state.comments.comments.map(item=>console.log(item.body));
-  })
-  .catch(res => 
-    {
-      alert("failed to view comments because  " + res.status );
-    }
-  );
+  viewComments = (id) => {
+    const token = getItem('token');
+    axios.get(`${URL}${viewComments}${id}`, {
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    })
+      .then(res => {
+        this.setState({ comments: res.data });
+        this.setState({ commentFlag: true });
+      })
+      .catch(res => {
+        alert("failed to view comments because  " + res.status);
+      }
+      );
   }
 
   componentWillUnmount() {
-    this.player.removeEventListener("timeupdate", () => {});
+    this.player.removeEventListener("timeupdate", () => { });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -61,8 +56,8 @@ class PlaySong extends React.Component {
       let track;
       const currentSong = this.props.list.filter(song => song.title === this.state.selectedTrack);
       if (this.state.selectedTrack)
-      track=currentSong[0].file;
-   
+        track = currentSong[0].file;
+
       if (track) {
         this.player.src = track;
         this.player.play();
@@ -74,7 +69,7 @@ class PlaySong extends React.Component {
         this.player.pause();
       } else if (this.state.player === "stopped") {
         this.player.pause();
-        this.player.currentTime = 0; 
+        this.player.currentTime = 0;
         this.setState({ selectedTrack: null });
       } else if (
         this.state.player === "playing" &&
@@ -86,39 +81,39 @@ class PlaySong extends React.Component {
   }
 
   render() {
-    
+
     const list = this.props.list.map(item => {
       return (
         <div>
-          <button key = {item.id} onClick={()=>this.viewComments(item.id)}>
-          {item.id} view comments
-          </button>
           <li
             key={item.id}
             onClick={() => this.setState({ selectedTrack: item.title })}
           >
             {item.title}
           </li>
+          <button key={key++} onClick={() => this.viewComments(item.id)}>
+            view comments
+          </button>
         </div>
       );
     });
-    
+
     const currentTime = getTime(this.state.currentTime);
     const duration = getTime(this.state.duration);
-    
+
     return (
       <>
         <h1>Songs are</h1>
         <div>
           <ul>{list}</ul>
           <p>
-          {this.state.commentFlag ? 
-          (<div>{this.state.comments.comments.map(
-            item => <p>{item.user} commented : {item.body}</p>)}</div>)
-            :null} 
+            {this.state.commentFlag ?
+              (<div>{this.state.comments.comments.map(
+                item => <p>{item.user} commented : {item.body}</p>)}</div>)
+              : null}
           </p>
         </div>
-         
+
         <div>
           {this.state.player === "paused" && (
             <button onClick={() => this.setState({ player: "playing" })}>
@@ -137,19 +132,19 @@ class PlaySong extends React.Component {
           ) : ""
           }
           {this.state.selectedTrack && this.state.player === "stopped" ? (
-          <button onClick={() => this.setState({ player: "playing" })}>
-            play
-          </button>
-            ) : "" }
+            <button onClick={() => this.setState({ player: "playing" })}>
+              play
+            </button>
+          ) : ""}
         </div>
         {this.state.player === "playing" || this.state.player === "paused" ? (
           <div>
             {currentTime} / {duration}
           </div>
         ) : (
-          ""
-        )}
-        <audio ref={ref => (this.player = ref)} />
+            ""
+          )}
+        <video ref={ref => (this.player = ref)} />
       </>
     );
   }

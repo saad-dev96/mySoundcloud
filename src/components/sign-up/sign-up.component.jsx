@@ -2,6 +2,11 @@ import React from 'react';
 import FormInput from '../form-input/form-input.component';
 import axios from 'axios';
 import './sign-up.styles.scss';
+import { URL } from '../../env'
+import { signup } from '../../env'
+import { setItem } from '../../utils'
+import { removeItem } from '../../utils'
+import { getItem } from '../../utils'
 
 class SignUp extends React.Component {
   constructor() {
@@ -9,8 +14,8 @@ class SignUp extends React.Component {
 
     this.state = {
       username: '',
-      fname: '',
-      lname: '',
+      first_name: '',
+      last_name: '',
       email: '',
       password: '',
     };
@@ -18,41 +23,40 @@ class SignUp extends React.Component {
 
   handleSubmit = event => {
     event.preventDefault();
-    const { username, fname, lname, email, password } = this.state;
+    const { username, first_name, last_name, email, password } = this.state;
     const user = {
       username: this.state.username,
-      fname: this.state.fname,
-      lname:this.state.lname,
-      email:this.state.email,
+      first_name: this.state.first_name,
+      last_name: this.state.last_name,
+      email: this.state.email,
       password: this.state.password
     };
     console.log(user);
 
-      axios.post('https://soud-cloud-backend.herokuapp.com/api/user/create/', user)
+    axios.post(`${URL}${signup}`, user)
       .then(res => {
-        this.setState({ username: '', fname:'', lname:'', email: '', password: ''});
-        localStorage.setItem('fname', this.state.username); 
-        localStorage.setItem('lname', this.state.password); 
-        alert ("Signed up successfully");
-        //console.log("this is user " + localStorage.getItem('token'));
+        setItem('first_name', this.state.username);
+        setItem('last_name', this.state.password);
+        this.setState({ username: '', first_name: '', last_name: '', email: '', password: '' });
+        alert("Signed up successfully");
       })
-      .catch ((res) => {
+      .catch((res) => {
         console.log(res);
         if (res.status == undefined) {
           alert('failed to sign-up')
         }
-    })
+      })
   };
 
-  
-   handleChange = event => {
+
+  handleChange = event => {
     const { name, value } = event.target;
 
     this.setState({ [name]: value });
-   };
+  };
 
   render() {
-    const { username, fname, lname, email, password } = this.state;
+    const { username, first_name, last_name, email, password } = this.state;
     return (
       <div className='sign-up'>
         <h2 className='title'>I do not have a account</h2>
@@ -66,18 +70,18 @@ class SignUp extends React.Component {
             label='Display Name'
             required
           />
-           <FormInput
+          <FormInput
             type='text'
-            name='fname'
-            value={this.state.fname}
+            name='first_name'
+            value={this.state.first_name}
             onChange={this.handleChange}
             label='First name'
             required
           />
-           <FormInput
+          <FormInput
             type='text'
-            name='lname'
-            value={this.state.lname}
+            name='last_name'
+            value={this.state.last_name}
             onChange={this.handleChange}
             label='last name'
             required
