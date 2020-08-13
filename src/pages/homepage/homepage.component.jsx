@@ -60,7 +60,6 @@ class HomePage extends Component {
         }
       })
       .catch(res => { alert("nothing found due to " + res.status) });
-    console.log(getItem('token'));
   }
   componentDidMount() {
 
@@ -71,20 +70,21 @@ class HomePage extends Component {
     console.log(getItem('token'));
     return (
       <div className='homepage'>
-          <div className='option' />
+        <div className='option' />
 
       welcome {user}
-          <div className='all'>
-            <button className='button' type="submit" onClick={this.handleListClick}>view all songs</button>
-            {this.state.listFlag ? (<PlaySong list={this.state.mylist} />) : null}
-          </div>
-      ---------------------------------------------------------------------------------
-      ---------------------------------------------------------------------------------
+      <div className='screen'>
+        <div className='all'>
+          <button className='button' type="submit" onClick={this.handleListClick}>view all songs</button>
+          {this.state.listFlag ? (<PlaySong newFunc = {this.handleListClick} list={this.state.mylist} />) : null}
+        </div>
+       
         <div className='searching'>
-            <input type="text" placeholder="Search Songs" id='search'></input>
-            <button className='button' type="submit" onClick={this.handleSearchClick}>Search</button>
-            {this.state.searchFlag ? (<PlaySong list={this.state.searchedList} />) : null}
-          </div>
+          <input type="text" placeholder="Search Songs" id='search'></input>
+          <button className='button' type="submit" onClick={this.handleSearchClick}>Search</button>
+          {this.state.searchFlag ? (<PlaySong list={this.state.searchedList} />) : null}
+        </div>
+      </div>
       </div>
     );
   }

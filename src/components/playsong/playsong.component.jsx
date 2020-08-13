@@ -1,13 +1,10 @@
 import React, { Component, useContext } from "react";
 import axios from 'axios'
 import ReactDOM from "react-dom";
-import { URL } from '../../env'
-import { addComment } from '../../env'
-import { viewComments } from '../../env'
-import { getItem } from '../../utils'
-import { getTime } from '../../utils'
-import { updateComment } from '../../env'
-import { deleteComment } from '../../env'
+import { URL, share, listSongs, addComment, viewComments, updateComment, deleteComment, like, unlike, addView } from '../../env'
+import { getTime, getItem } from '../../utils'
+
+import './playsong.styles.scss'
 
 var key = 0;
 var editId = 0;
@@ -32,7 +29,9 @@ class PlaySong extends React.Component {
         body: null
       },
       editComment: '',
-      currentSong : 0
+      currentSong: 0,
+      shareFlag:false,
+      shareId:0
     };
   }
   componentDidMount() {
@@ -43,10 +42,10 @@ class PlaySong extends React.Component {
       });
     });
   }
-  refreshComments = () =>{
+  refreshComments = () => {
     console.log(this.state.currentSong);
     const token = getItem('token');
-    const id=this.state.currentSong;
+    const id = this.state.currentSong;
     axios.get(`${URL}${viewComments}${id}`, {
       headers: {
         'Authorization': `Token ${token}`
@@ -63,7 +62,7 @@ class PlaySong extends React.Component {
   }
   viewComments = (id) => {
     const token = getItem('token');
-    this.setState({currentSong : id});
+    this.setState({ currentSong: id });
     axios.get(`${URL}${viewComments}${id}`, {
       headers: {
         'Authorization': `Token ${token}`
@@ -88,15 +87,42 @@ class PlaySong extends React.Component {
     })
       .then(res => {
         alert("comment deleted");
-        this.setState({ commentFlag: true } , ()=>{this.refreshComments()});
+        this.setState({ commentFlag: true }, () => { this.refreshComments() });
       })
       .catch(res => {
         alert("failed to delete comment because  " + res.status);
       }
       );
-
-
   }
+  shareSongHelper = (id) => {
+
+    this.state.currentSong = id;
+    this.setState({ shareFlag: true, editFlag: false, commentFlag: false })
+  }
+
+  shareSong = () => {
+    const token = getItem('token');
+    const text = document.getElementById("share").value;
+    var bodyFormData = new FormData();
+    bodyFormData.set('song_id', this.state.currentSong);
+    bodyFormData.set('sender_username', getItem('user'));
+    bodyFormData.set('receiver_username', text);
+    
+    axios.post(`${URL}${share}`, bodyFormData, {
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    })
+      .then(res => {
+        this.setState({ shareFlag: false, commentFlag: true });
+        alert(res.data.message);
+      })
+      .catch(res => {
+        alert("failed to share because  " + res.status);
+      }
+      );
+  }
+
   addCommentHelper = (id) => {
 
     this.state.currentSong = id;
@@ -146,7 +172,7 @@ class PlaySong extends React.Component {
       }
     })
       .then(res => {
-        this.setState({comment : res.data});
+        this.setState({ comment: res.data });
         this.refreshComments(this.state.currentSong);
         this.setState({ editFlag: false, commentFlag: true });
         alert("Comment edited");
@@ -155,9 +181,80 @@ class PlaySong extends React.Component {
         alert("failed to add comment because  " + res.status);
       }
       );
-
   }
 
+  like = (id) => {
+    const token = getItem('token');
+    var bodyFormData = new FormData();
+    bodyFormData.set('song_id', id);
+    axios.post(`${URL}${like}`, bodyFormData, {
+      headers: {
+        'Authorization': `Token ${token}`, 'Content-Type': 'multipart/form-data'
+      }
+    })
+      .then(res => {
+        if(this.props.likedFlag===true)
+        {
+          console.log('liked');
+          this.props.likedFunc(this.props.set);
+        }
+        else this.props.newFunc();
+        
+      })
+      .catch(res => {
+        console.log("failed to like because  " + res);
+      }
+      );
+  }
+
+  unlike = (id) => {
+    const token = getItem('token');
+    var bodyFormData = new FormData();
+    bodyFormData.set('song_id', id);
+    axios.post(`${URL}${unlike}`, bodyFormData, {
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    })
+      .then(res => {
+        if(this.props.likedFlag===true)
+        {
+          console.log('liked');
+          this.props.likedFunc(this.props.set);
+        }
+        else this.props.newFunc();
+        
+      })
+      .catch(res => {
+        alert("failed to unlike because  " + res.status);
+      }
+      );
+  }
+
+  addView = (id, title) => {
+    this.setState({ selectedTrack: title });
+    const token = getItem('token');
+    var bodyFormData = new FormData();
+    bodyFormData.set('song_id', id);
+    axios.post(`${URL}${addView}`, bodyFormData, {
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    })
+      .then(res => {
+        if(this.props.likedFlag===true)
+        {
+          console.log('liked');
+          this.props.likedFunc(this.props.set);
+        }
+        else this.props.newFunc();
+        
+      })
+      .catch(res => {
+        alert("failed to addView because  " + res.status);
+      }
+      );
+  }
 
   componentWillUnmount() {
     this.player.removeEventListener("timeupdate", () => { });
@@ -193,14 +290,16 @@ class PlaySong extends React.Component {
   }
 
   render() {
-
     const list = this.props.list.map((item, index) => {
       return (
         <div key={index}>
-          <li
-            onClick={() => this.setState({ selectedTrack: item.title })}
+          <li className='listing'
+            onClick={() => this.addView(item.id,item.title)}
           >
-            {item.title}
+            {item.title} Song has
+            {item.views} views and
+            {item.likes_count} likes!!
+            Click the song name to play!
           </li>
 
           <button key={key++} onClick={() => this.viewComments(item.id)}>
@@ -210,7 +309,18 @@ class PlaySong extends React.Component {
           <button key={key++} onClick={() => this.addCommentHelper(item.id)}>
             add a comment
           </button>
-
+          {!item.liked_by_user ? (
+            <button key={key++} onClick={() => this.like(item.id)} id='like'>
+              like
+            </button>)
+            : (
+              <button key={key++} value='unlike' onClick={() => this.unlike(item.id)} id = 'button2'>
+                unlike
+              </button>)
+          }
+          <button key={key++} onClick={() => this.shareSongHelper(item.id)}>
+            Share with someone
+          </button>
         </div>
       );
     });
@@ -222,11 +332,17 @@ class PlaySong extends React.Component {
       <>
         <h1>Songs are</h1>
         <div>
-          <ul>{list}</ul>
+          <ul> {list} </ul>
           {this.state.commentAddFlag ?
             (<div className='comment'>
               <textarea id="comment" rows='4' cols='50' placeholder='add a comment' ></textarea>
               <button onClick={this.addNewComment}>submit</button>
+            </div>)
+            : null}
+            {this.state.shareFlag ?
+            (<div className='share'>
+              <textarea id="share" rows='4' cols='50' placeholder='add the username of the user you want to share this song with..' ></textarea>
+              <button onClick={this.shareSong}>submit</button>
             </div>)
             : null}
           <div>
@@ -236,10 +352,10 @@ class PlaySong extends React.Component {
                   <p>{item.user} commented : {item.body}</p>
                   {
                     item.user === getItem('user') ?
-                    (<div key={index}><button onClick={() => this.updateCommentHelper(item.id, item.body)}>edit comment</button>
-                    <button className ='delete' onClick={() => this.deleteComment(item.id)}>delete comment</button></div>
-                    )
-                    : null
+                      (<div key={index}><button onClick={() => this.updateCommentHelper(item.id, item.body)}>edit comment</button>
+                        <button className='delete' onClick={() => this.deleteComment(item.id)}>delete comment</button></div>
+                      )
+                      : null
                   }
                 </div>
               )}</div>)

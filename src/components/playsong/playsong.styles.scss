@@ -1,7 +1,13 @@
 .comment{
-position: relative;
+position: absolute;
+float:right;
 }
 .comment{
-  position: relative;
+  position: absolute;
+  float:left;
   margin-left: auto;
+  }
+.listing{
+    margin-top: 20px;
+    margin-bottom: 20px;
   }
