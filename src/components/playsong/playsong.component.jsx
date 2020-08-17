@@ -31,7 +31,8 @@ class PlaySong extends React.Component {
       editComment: '',
       currentSong: 0,
       shareFlag:false,
-      shareId:0
+      shareId:0,
+      GlobalTitle:''
     };
   }
   componentDidMount() {
@@ -53,14 +54,14 @@ class PlaySong extends React.Component {
     })
       .then(res => {
         this.setState({ comments: res.data });
-        this.setState({ commentFlag: true });
+        this.setState({ commentFlag: true, shareFlag: false, editFlag:false  });
       })
       .catch(res => {
         alert("failed to view comments because  " + res.status);
       }
       );
   }
-  viewComments = (id) => {
+  viewComments = (title, id) => {
     const token = getItem('token');
     this.setState({ currentSong: id });
     axios.get(`${URL}${viewComments}${id}`, {
@@ -69,6 +70,7 @@ class PlaySong extends React.Component {
       }
     })
       .then(res => {
+        this.setState({GlobalTitle:title});
         this.setState({ comments: res.data });
         this.setState({ commentFlag: true });
       })
@@ -86,7 +88,6 @@ class PlaySong extends React.Component {
       }
     })
       .then(res => {
-        alert("comment deleted");
         this.setState({ commentFlag: true }, () => { this.refreshComments() });
       })
       .catch(res => {
@@ -115,7 +116,7 @@ class PlaySong extends React.Component {
     })
       .then(res => {
         this.setState({ shareFlag: false, commentFlag: true });
-        alert(res.data.message);
+        alert(res.data.error)
       })
       .catch(res => {
         alert("failed to share because  " + res.status);
@@ -126,7 +127,7 @@ class PlaySong extends React.Component {
   addCommentHelper = (id) => {
 
     this.state.currentSong = id;
-    this.setState({ commentAddFlag: true, editFlag: false, commentFlag: false })
+    this.setState({ commentAddFlag: true, shareFlag: false, editFlag: false, commentFlag: true })
   }
 
   addNewComment = () => {
@@ -147,7 +148,6 @@ class PlaySong extends React.Component {
     })
       .then(res => {
         this.setState({ commentAddFlag: false, commentFlag: true });
-        alert("Comment added");
       })
       .catch(res => {
         alert("failed to add comment because  " + res.status);
@@ -175,7 +175,6 @@ class PlaySong extends React.Component {
         this.setState({ comment: res.data });
         this.refreshComments(this.state.currentSong);
         this.setState({ editFlag: false, commentFlag: true });
-        alert("Comment edited");
       })
       .catch(res => {
         alert("failed to add comment because  " + res.status);
@@ -219,7 +218,6 @@ class PlaySong extends React.Component {
       .then(res => {
         if(this.props.likedFlag===true)
         {
-          console.log('liked');
           this.props.likedFunc(this.props.set);
         }
         else this.props.newFunc();
@@ -244,7 +242,6 @@ class PlaySong extends React.Component {
       .then(res => {
         if(this.props.likedFlag===true)
         {
-          console.log('liked');
           this.props.likedFunc(this.props.set);
         }
         else this.props.newFunc();
@@ -302,7 +299,7 @@ class PlaySong extends React.Component {
             Click the song name to play!
           </li>
 
-          <button key={key++} onClick={() => this.viewComments(item.id)}>
+          <button key={key++} onClick={() => this.viewComments(item.title, item.id)}>
             view comments
           </button>
 
@@ -330,30 +327,30 @@ class PlaySong extends React.Component {
 
     return (
       <>
-        <h1>Songs are</h1>
+        <h4>{this.props.str}</h4>
         <div>
           <ul> {list} </ul>
           {this.state.commentAddFlag ?
             (<div className='comment'>
-              <textarea id="comment" rows='4' cols='50' placeholder='add a comment' ></textarea>
-              <button onClick={this.addNewComment}>submit</button>
+              <textarea  className='box' id="comment" rows='2' cols='25' placeholder='add a comment' ></textarea>
+              <button className ='Clickbox' onClick={this.addNewComment}>submit</button>
             </div>)
             : null}
             {this.state.shareFlag ?
             (<div className='share'>
-              <textarea id="share" rows='4' cols='50' placeholder='add the username of the user you want to share this song with..' ></textarea>
-              <button onClick={this.shareSong}>submit</button>
+              <textarea className='box' id="share" rows='2' cols='25' placeholder='add the username of the user you want to share this song with..' ></textarea>
+              <button className ='Clickbox' onClick={this.shareSong}>submit</button>
             </div>)
             : null}
           <div>
             {this.state.commentFlag ?
-              (<div>{this.state.comments.comments.map((item, index) =>
+              (<div className='comments'><h3>{this.state.GlobalTitle} has the following comments:</h3>{this.state.comments.comments.map((item, index) =>
                 <div key={index}>
-                  <p>{item.user} commented : {item.body}</p>
+                  <p><dl><dt>{item.user} </dt><dd>commented : {item.body}</dd></dl></p>
                   {
                     item.user === getItem('user') ?
-                      (<div key={index}><button onClick={() => this.updateCommentHelper(item.id, item.body)}>edit comment</button>
-                        <button className='delete' onClick={() => this.deleteComment(item.id)}>delete comment</button></div>
+                      (<p><div key={index}><button onClick={() => this.updateCommentHelper(item.id, item.body)}>edit comment</button>
+                        <button className='delete' onClick={() => this.deleteComment(item.id)}>delete comment</button></div><br></br></p>
                       )
                       : null
                   }
@@ -363,8 +360,8 @@ class PlaySong extends React.Component {
           </div>
           {this.state.editFlag ?
             (<div className='update'>
-              <textarea id="update" rows='4' cols='50' defaultValue={this.state.editComment}></textarea>
-              <button onClick={this.updateComment}>submit</button>
+              <textarea className='box' id="update" rows='2' cols='25' defaultValue={this.state.editComment}></textarea>
+              <button className ='Clickbox' onClick={this.updateComment}>submit</button>
             </div>)
             : null
           }

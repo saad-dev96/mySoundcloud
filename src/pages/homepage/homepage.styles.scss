@@ -23,4 +23,38 @@
     justify-content: center;
     width: 100vw;
   }
-
+  .search{
+    position:fixed;
+    bottom: 700px;
+    right:100px;
+  }
+  .searchbutton{
+    position:fixed;
+    bottom: 668px;
+    right:100px;
+  }
+  .viewAll {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    position:fixed;
+    bottom: 670px;
+    left:100px;
+  }
+  .viewAll {
+    background-color: white; 
+    color: black; 
+    border: 2px solid #4CAF50;
+  }
+  .viewAll:hover {
+    background-color: #4CAF50;
+    color: white;
+  }

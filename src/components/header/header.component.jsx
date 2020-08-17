@@ -44,9 +44,9 @@ const Header = () => {
           Profile
         </Link>
         {currentUser ? (
-          <button className='option' to='/' onClick={handleClick} >
+          <Link className='option' to='/' onClick={handleClick} >
             SIGN OUT
-          </button>
+          </Link>
         ) : (
             <Link className='option' to='/'>
               SIGN IN

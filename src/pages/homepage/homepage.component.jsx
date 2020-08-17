@@ -72,17 +72,17 @@ class HomePage extends Component {
       <div className='homepage'>
         <div className='option' />
 
-      welcome {user}
+      <h1>welcome {user}</h1>
       <div className='screen'>
         <div className='all'>
-          <button className='button' type="submit" onClick={this.handleListClick}>view all songs</button>
-          {this.state.listFlag ? (<PlaySong newFunc = {this.handleListClick} list={this.state.mylist} />) : null}
+          <button className='viewAll' type="submit" onClick={this.handleListClick}>view all songs</button>
+          {this.state.listFlag ? (<PlaySong str={'All songs are'} newFunc = {this.handleListClick} list={this.state.mylist} />) : null}
         </div>
        
         <div className='searching'>
-          <input type="text" placeholder="Search Songs" id='search'></input>
-          <button className='button' type="submit" onClick={this.handleSearchClick}>Search</button>
-          {this.state.searchFlag ? (<PlaySong list={this.state.searchedList} />) : null}
+          <input className='search'type="text" placeholder="Search Songs" id='search'></input>
+          <button className='searchbutton' type="submit" onClick={this.handleSearchClick}>Search</button>
+          {this.state.searchFlag ? (<PlaySong str={'Searched songs are'} list={this.state.searchedList} />) : null}
         </div>
       </div>
       </div>
