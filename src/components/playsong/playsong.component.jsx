@@ -148,6 +148,7 @@ class PlaySong extends React.Component {
     })
       .then(res => {
         this.setState({ commentAddFlag: false, commentFlag: true });
+        this.refreshComments(this.state.currentSong);
       })
       .catch(res => {
         alert("failed to add comment because  " + res.status);
