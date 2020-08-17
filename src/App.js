@@ -12,6 +12,7 @@ import ForgotPassword from './components/forgot-password/forgot-password.compone
 import {getItem} from './utils'
 import { createStructuredSelector } from 'reselect'
 import axios from 'axios';
+import './app.styles.scss'
 
 class App extends React.Component {
   constructor() {
@@ -36,7 +37,7 @@ class App extends React.Component {
   }
   render() {
     return (
-      <div>
+      <div className='App'>
         <BrowserRouter>
           <CurrentUserContext.Provider value={this.state.currentUser}>
             <Header />

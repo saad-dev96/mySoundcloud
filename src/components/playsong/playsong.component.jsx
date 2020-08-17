@@ -30,9 +30,9 @@ class PlaySong extends React.Component {
       },
       editComment: '',
       currentSong: 0,
-      shareFlag:false,
-      shareId:0,
-      GlobalTitle:''
+      shareFlag: false,
+      shareId: 0,
+      GlobalTitle: ''
     };
   }
   componentDidMount() {
@@ -54,7 +54,7 @@ class PlaySong extends React.Component {
     })
       .then(res => {
         this.setState({ comments: res.data });
-        this.setState({ commentFlag: true, shareFlag: false, editFlag:false  });
+        this.setState({ commentFlag: true, shareFlag: false, editFlag: false });
       })
       .catch(res => {
         alert("failed to view comments because  " + res.status);
@@ -70,7 +70,7 @@ class PlaySong extends React.Component {
       }
     })
       .then(res => {
-        this.setState({GlobalTitle:title});
+        this.setState({ GlobalTitle: title });
         this.setState({ comments: res.data });
         this.setState({ commentFlag: true });
       })
@@ -108,7 +108,7 @@ class PlaySong extends React.Component {
     bodyFormData.set('song_id', this.state.currentSong);
     bodyFormData.set('sender_username', getItem('user'));
     bodyFormData.set('receiver_username', text);
-    
+
     axios.post(`${URL}${share}`, bodyFormData, {
       headers: {
         'Authorization': `Token ${token}`
@@ -192,13 +192,12 @@ class PlaySong extends React.Component {
       }
     })
       .then(res => {
-        if(this.props.likedFlag===true)
-        {
+        if (this.props.likedFlag === true) {
           console.log('liked');
           this.props.likedFunc(this.props.set);
         }
         else this.props.newFunc();
-        
+
       })
       .catch(res => {
         console.log("failed to like because  " + res);
@@ -216,12 +215,11 @@ class PlaySong extends React.Component {
       }
     })
       .then(res => {
-        if(this.props.likedFlag===true)
-        {
+        if (this.props.likedFlag === true) {
           this.props.likedFunc(this.props.set);
         }
         else this.props.newFunc();
-        
+
       })
       .catch(res => {
         alert("failed to unlike because  " + res.status);
@@ -240,12 +238,11 @@ class PlaySong extends React.Component {
       }
     })
       .then(res => {
-        if(this.props.likedFlag===true)
-        {
+        if (this.props.likedFlag === true) {
           this.props.likedFunc(this.props.set);
         }
         else this.props.newFunc();
-        
+
       })
       .catch(res => {
         alert("failed to addView because  " + res.status);
@@ -291,7 +288,7 @@ class PlaySong extends React.Component {
       return (
         <div key={index}>
           <li className='listing'
-            onClick={() => this.addView(item.id,item.title)}
+            onClick={() => this.addView(item.id, item.title)}
           >
             {item.title} Song has
             {item.views} views and
@@ -311,7 +308,7 @@ class PlaySong extends React.Component {
               like
             </button>)
             : (
-              <button key={key++} value='unlike' onClick={() => this.unlike(item.id)} id = 'button2'>
+              <button key={key++} value='unlike' onClick={() => this.unlike(item.id)} id='button2'>
                 unlike
               </button>)
           }
@@ -327,78 +324,81 @@ class PlaySong extends React.Component {
 
     return (
       <>
-        <h4>{this.props.str}</h4>
-        <div>
-          <ul> {list} </ul>
-          {this.state.commentAddFlag ?
-            (<div className='comment'>
-              <textarea  className='box' id="comment" rows='2' cols='25' placeholder='add a comment' ></textarea>
-              <button className ='Clickbox' onClick={this.addNewComment}>submit</button>
-            </div>)
-            : null}
-            {this.state.shareFlag ?
-            (<div className='share'>
-              <textarea className='box' id="share" rows='2' cols='25' placeholder='add the username of the user you want to share this song with..' ></textarea>
-              <button className ='Clickbox' onClick={this.shareSong}>submit</button>
-            </div>)
-            : null}
+        <p>
+          <br></br>
+          <h4>{this.props.str}</h4>
           <div>
-            {this.state.commentFlag ?
-              (<div className='comments'><h3>{this.state.GlobalTitle} has the following comments:</h3>{this.state.comments.comments.map((item, index) =>
-                <div key={index}>
-                  <p><dl><dt>{item.user} </dt><dd>commented : {item.body}</dd></dl></p>
-                  {
-                    item.user === getItem('user') ?
-                      (<p><div key={index}><button onClick={() => this.updateCommentHelper(item.id, item.body)}>edit comment</button>
-                        <button className='delete' onClick={() => this.deleteComment(item.id)}>delete comment</button></div><br></br></p>
-                      )
-                      : null
-                  }
-                </div>
-              )}</div>)
+            <ul> {list} </ul>
+            {this.state.commentAddFlag ?
+              (<div className='comment'>
+                <textarea className='box' id="comment" rows='2' cols='25' placeholder='add a comment' ></textarea>
+                <button className='Clickbox' onClick={this.addNewComment}>submit</button>
+              </div>)
               : null}
+            {this.state.shareFlag ?
+              (<div className='share'>
+                <textarea className='box' id="share" rows='2' cols='25' placeholder='add the username of the user you want to share this song with..' ></textarea>
+                <button className='Clickbox' onClick={this.shareSong}>submit</button>
+              </div>)
+              : null}
+            <div>
+              {this.state.commentFlag ?
+                (<div className='comments'><h3>{this.state.GlobalTitle} has the following comments:</h3>{this.state.comments.comments.map((item, index) =>
+                  <div key={index}>
+                    <p><dl><dt>{item.user} </dt><dd>commented : {item.body}</dd></dl></p>
+                    {
+                      item.user === getItem('user') ?
+                        (<p><div key={index}><button onClick={() => this.updateCommentHelper(item.id, item.body)}>edit comment</button>
+                          <button className='delete' onClick={() => this.deleteComment(item.id)}>delete comment</button></div><br></br></p>
+                        )
+                        : null
+                    }
+                  </div>
+                )}</div>)
+                : null}
+            </div>
+            {this.state.editFlag ?
+              (<div className='update'>
+                <textarea className='box' id="update" rows='2' cols='25' defaultValue={this.state.editComment}></textarea>
+                <button className='Clickbox' onClick={this.updateComment}>submit</button>
+              </div>)
+              : null
+            }
+
           </div>
-          {this.state.editFlag ?
-            (<div className='update'>
-              <textarea className='box' id="update" rows='2' cols='25' defaultValue={this.state.editComment}></textarea>
-              <button className ='Clickbox' onClick={this.updateComment}>submit</button>
-            </div>)
-            : null
-          }
 
-        </div>
-
-        <div>
-          {this.state.player === "paused" && (
-            <button onClick={() => this.setState({ player: "playing" })}>
-              Play
-            </button>
-          )}
-          {this.state.player === "playing" && (
-            <button onClick={() => this.setState({ player: "paused" })}>
-              Pause
-            </button>
-          )}
-          {this.state.player === "playing" || this.state.player === "paused" ? (
-            <button onClick={() => this.setState({ player: "stopped" })}>
-              Stop
-            </button>
-          ) : ""
-          }
-          {this.state.selectedTrack && this.state.player === "stopped" ? (
-            <button onClick={() => this.setState({ player: "playing" })}>
-              play
-            </button>
-          ) : ""}
-        </div>
-        {this.state.player === "playing" || this.state.player === "paused" ? (
           <div>
-            {currentTime} / {duration}
+            {this.state.player === "paused" && (
+              <button onClick={() => this.setState({ player: "playing" })}>
+                Play
+              </button>
+            )}
+            {this.state.player === "playing" && (
+              <button onClick={() => this.setState({ player: "paused" })}>
+                Pause
+              </button>
+            )}
+            {this.state.player === "playing" || this.state.player === "paused" ? (
+              <button onClick={() => this.setState({ player: "stopped" })}>
+                Stop
+              </button>
+            ) : ""
+            }
+            {this.state.selectedTrack && this.state.player === "stopped" ? (
+              <button onClick={() => this.setState({ player: "playing" })}>
+                play
+              </button>
+            ) : ""}
           </div>
-        ) : (
-            ""
-          )}
-        <video ref={ref => (this.player = ref)} />
+          {this.state.player === "playing" || this.state.player === "paused" ? (
+            <div>
+              {currentTime} / {duration}
+            </div>
+          ) : (
+              ""
+            )}
+          <video ref={ref => (this.player = ref)} />
+        </p>
       </>
     );
   }
