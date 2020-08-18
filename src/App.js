@@ -1,5 +1,5 @@
 
-import React  from 'react';
+import React from 'react';
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 import './App.css';
 import HomePage from './pages/homepage/homepage.component'
@@ -9,9 +9,10 @@ import Profile from './pages/profile/profile.component'
 import './App.css';
 import CurrentUserContext from './contexts/current-user/current-user.context';
 import ForgotPassword from './components/forgot-password/forgot-password.component';
-
-import {createStructuredSelector} from 'reselect'
+import {getItem} from './utils'
+import { createStructuredSelector } from 'reselect'
 import axios from 'axios';
+import './app.styles.scss'
 
 class App extends React.Component {
   constructor() {
@@ -24,7 +25,7 @@ class App extends React.Component {
 
   componentDidMount() {
 
-    const token = localStorage.getItem('token');
+    const token = getItem('token');
 
     this.setState({
       currentUser: token
@@ -36,19 +37,19 @@ class App extends React.Component {
   }
   render() {
     return (
-      <div>
-        <BrowserRouter>     
-        <CurrentUserContext.Provider value={this.state.currentUser}>
-          <Header />
-        </CurrentUserContext.Provider>
+      <div className='App'>
+        <BrowserRouter>
+          <CurrentUserContext.Provider value={this.state.currentUser}>
+            <Header />
+          </CurrentUserContext.Provider>
           <Switch>
-          <Route exact path='/home' component={HomePage} />
-          <Route exact path='/profile' component={Profile} />
-          <Route exact path='/forgot' component={ForgotPassword} />
+            <Route exact path='/home' component={HomePage} />
+            <Route exact path='/profile' component={Profile} />
+            <Route exact path='/forgot' component={ForgotPassword} />
             <Route
               exact
               path='/'
-              render ={()=>this.state.currentUser ? (<Redirect to = '/home'/>): (<SignInAndSignUpPage/>)}/>
+              render={() => this.state.currentUser ? (<Redirect to='/home' />) : (<SignInAndSignUpPage />)} />
           </Switch>
         </BrowserRouter>
       </div>

@@ -1,10 +1,14 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import FormInput from '../form-input/form-input.component';
 import './sign-in.styles.scss';
 import axios from 'axios';
 import { withRouter, Link } from 'react-router-dom';
 import { useHistory } from "react-router-dom";
-
+import {URL} from '../../env'
+import {signin} from '../../env'
+import {setItem} from '../../utils'
+import {removeItem} from '../../utils'
+import {getItem} from '../../utils'
 
 class SignIn extends React.Component {
   constructor(props) {
@@ -21,43 +25,40 @@ class SignIn extends React.Component {
 
     {
       const { history } = this.props;
-      if(history) history.push('/forgot');
-     }
+      if (history) history.push('/forgot');
     }
+  }
 
-  handleSubmit = (event)  => {
+  handleSubmit = (event) => {
 
     event.preventDefault();
     const { username, password } = this.state;
     const user = {
       username: this.state.username,
       password: this.state.password
-    };
-    console.log(user);
+    }
 
-      axios.post('https://soud-cloud-backend.herokuapp.com/api/user/login/' , user)
+    axios.post(`${URL}${signin}`, user)
       .then(res => {
-        localStorage.setItem('user', user.username);
-        console.log(res.data.token);
-        localStorage.setItem('token', res.data.token); 
-        if (res.status === 200)  
-        alert("Successfully signed in")
+        setItem('user', user.username);
+        setItem('token', res.data.token);
+        if (res.status === 200)
+          alert("Successfully signed in")
         window.location.reload();
       })
-      .catch ((res) => {
+      .catch((res) => {
         console.log(res);
         if (res.status === undefined) {
           alert('could not sign-in due to ' + res.status)
         }
-    })
+      })
   };
 
   handleChange = event => {
     const { value, name } = event.target;
-
     this.setState({ [name]: value });
   };
- 
+
   render() {
 
     return (
@@ -67,7 +68,7 @@ class SignIn extends React.Component {
 
         <form onSubmit={this.handleSubmit}>
           <FormInput
-            name= 'username'
+            name='username'
             type='username'
             handleChange={this.handleChange}
             value={this.state.username}
